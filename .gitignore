@@ -1,0 +1,17 @@
+.DS_Store
+node_modules/
+.venv/
+__pycache__/
+dist/
+evidence/
+private/
+*.epub
+*.m4b
+*.pdf
+*.txt
+!requirements.txt
+!requirements-audio.txt
+.env
+.env.*
+*.partial.mp3
+audio/manifest.tmp

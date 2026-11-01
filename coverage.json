@@ -1,0 +1,143 @@
+{
+  "title": "Harry Potter and the Sorcerer's Stone",
+  "sourceSha256": "db46db211a412bf339426aab3166b51997279063f20f3a772d50ec3776ef9a93",
+  "edition": "Title and wording verified in the supplied EPUB; publisher and ISBN unverified.",
+  "chaptersRead": 17,
+  "sourceWords": 77781,
+  "wordCountMethod": "English alphabetic tokens including apostrophe compounds; chapter headings excluded.",
+  "cardsBeforeCrossChapterMerge": 1595,
+  "uniqueExpressionSenses": 1253,
+  "types": {
+    "phrasal": 411,
+    "idiom": 391,
+    "collocation": 451
+  },
+  "verifiedEvidenceCount": 1934,
+  "qaFixesApplied": 19,
+  "educationalSamplesReviewed": 30,
+  "falsePositivesExcluded": 2,
+  "taxonomyChanges": 1,
+  "method": "Full reading of all 17 supplied chapters; semantic selection of phrasal verbs, idioms/fixed formulas and conventional collocations; short exact-source evidence verified privately; cross-chapter deduplication retaining different senses; original B2 examples and Russian explanations. Chapter lists mean verified appearances, not an exhaustive concordance.",
+  "completeness": "All chapters were reviewed. Absolute exhaustiveness of the open class of collocations is not claimed.",
+  "sourceTextPublished": false,
+  "chapters": [
+    {
+      "number": 1,
+      "title": "The Boy Who Lived",
+      "wordCount": 4616,
+      "expressionSenses": 143
+    },
+    {
+      "number": 2,
+      "title": "The Vanishing Glass",
+      "wordCount": 3452,
+      "expressionSenses": 104
+    },
+    {
+      "number": 3,
+      "title": "The Letters From No One",
+      "wordCount": 3850,
+      "expressionSenses": 107
+    },
+    {
+      "number": 4,
+      "title": "The Keeper Of The Keys",
+      "wordCount": 3694,
+      "expressionSenses": 117
+    },
+    {
+      "number": 5,
+      "title": "Diagon Alley",
+      "wordCount": 6609,
+      "expressionSenses": 143
+    },
+    {
+      "number": 6,
+      "title": "The Journey From Platform Nine And Three Quarters",
+      "wordCount": 6302,
+      "expressionSenses": 126
+    },
+    {
+      "number": 7,
+      "title": "The Sorting Hat",
+      "wordCount": 4491,
+      "expressionSenses": 96
+    },
+    {
+      "number": 8,
+      "title": "The Potions Master",
+      "wordCount": 3063,
+      "expressionSenses": 97
+    },
+    {
+      "number": 9,
+      "title": "The Midnight Duel",
+      "wordCount": 4911,
+      "expressionSenses": 131
+    },
+    {
+      "number": 10,
+      "title": "Halloween",
+      "wordCount": 4294,
+      "expressionSenses": 107
+    },
+    {
+      "number": 11,
+      "title": "Quidditch",
+      "wordCount": 3335,
+      "expressionSenses": 87
+    },
+    {
+      "number": 12,
+      "title": "The Mirror Of Erised",
+      "wordCount": 5491,
+      "expressionSenses": 118
+    },
+    {
+      "number": 13,
+      "title": "Nicolas Flamel",
+      "wordCount": 3199,
+      "expressionSenses": 71
+    },
+    {
+      "number": 14,
+      "title": "Norbert The Norwegian Ridgeback",
+      "wordCount": 3467,
+      "expressionSenses": 73
+    },
+    {
+      "number": 15,
+      "title": "The Forbidden Forest",
+      "wordCount": 5100,
+      "expressionSenses": 105
+    },
+    {
+      "number": 16,
+      "title": "Through The Trapdoor",
+      "wordCount": 6426,
+      "expressionSenses": 124
+    },
+    {
+      "number": 17,
+      "title": "The Man With Two Faces",
+      "wordCount": 5481,
+      "expressionSenses": 136
+    }
+  ],
+  "audio": {
+    "voice": "en-GB-RyanNeural",
+    "files": 2465,
+    "bytes": 41593824,
+    "coverage": "Every phrase and every original English example has a verified MP3; identical phrases share a file.",
+    "checks": [
+      "exact text",
+      "voice identifier",
+      "SHA-256",
+      "byte length",
+      "decoded duration",
+      "non-silent PCM"
+    ]
+  },
+  "offlinePayloadBytes": 43752190,
+  "offlineSizeNote": "Uncompressed cached response bodies, including navigation/index entries; browser storage overhead excluded."
+}
