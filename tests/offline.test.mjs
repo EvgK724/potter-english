@@ -34,7 +34,7 @@ async function setup(t, callbacks = {}) {
     delete navigator.serviceWorker;
     delete globalThis.caches;
   });
-  const shellCache = await caches.open('hp-pocket-shell-v1');
+  const shellCache = await caches.open('hp-pocket-shell-v2');
   for (const path of shell) await shellCache.put(new URL(path, base).href, new Response(path === 'audio/manifest.json' ? JSON.stringify({ voice: 'en-GB-RyanNeural', files }) : 'shell'));
   const requested = [];
   globalThis.fetch = async url => {
@@ -105,14 +105,14 @@ test('init repairs an evicted shell with an active worker; downloads repair only
     shellRequests.push(String(url));
     return new Response(String(url).endsWith('/audio/manifest.json') ? JSON.stringify(manager.manifest) : 'repaired shell');
   };
-  await caches.delete('hp-pocket-shell-v1');
+  await caches.delete('hp-pocket-shell-v2');
   const repaired = await manager.init();
   assert.equal(repaired.shellReady, true);
   assert.equal(repaired.complete, false);
   assert.deepEqual(new Set(shellRequests), allowed);
   await manager.download();
   assert.equal(shellRequests.length, shell.length, 'valid shell assets are not downloaded again');
-  const shellCache = await caches.open('hp-pocket-shell-v1');
+  const shellCache = await caches.open('hp-pocket-shell-v2');
   const missingURL = new URL('app.js', base).href;
   await shellCache.delete(missingURL);
   assert.equal((await manager.download()).complete, true);

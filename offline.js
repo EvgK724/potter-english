@@ -1,5 +1,5 @@
 const BASE_URL = new URL('./', import.meta.url);
-const SHELL_CACHE = 'hp-pocket-shell-v1';
+const SHELL_CACHE = 'hp-pocket-shell-v2';
 const AUDIO_CACHE = 'hp-pocket-audio-v1';
 const MANIFEST_URL = new URL('audio/manifest.json', BASE_URL).href;
 const SHELL_ASSETS = [
