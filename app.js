@@ -157,6 +157,11 @@ document.addEventListener('click',e=>{
   if(e.target.closest('#delete-book')){if(confirm('Удалить локальный набор книги? Основной набор и история повторений останутся.')){state.book=null;setSource('corpus');}return;}
   const chapter=e.target.closest('[data-chapter]');if(chapter){const source=state.source;setSource(source);filters.chapter=chapter.dataset.chapter;$('#chapter-filter').value=filters.chapter;renderLibrary();return;}
 });
+// WebKit can restore :focus-visible to main after a touch-opened dialog closes.
+// Suppress only that container's pointer ring; keyboard input restores native focus.
+const mainFocusTarget = $('#main');
+document.addEventListener('pointerdown',()=>{mainFocusTarget.dataset.pointerFocus='';},{capture:true,passive:true});
+document.addEventListener('keydown',()=>{delete mainFocusTarget.dataset.pointerFocus;},true);
 document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();show('library');$('#search').focus();}});
 window.addEventListener('hashchange',()=>show(location.hash.slice(1),false));
 $('#import-file').addEventListener('change',async e=>{

@@ -1,4 +1,4 @@
-/** Real 1.0.1 -> 1.0.2 service-worker and translation update; no source material or live service is used. */
+/** Real 1.0.2 -> 1.0.3 service-worker and focus update; no source material or live service is used. */
 const { chromium, webkit } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const http = require('node:http');
 const fs = require('node:fs');
@@ -10,10 +10,10 @@ const { createHash } = require('node:crypto');
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const EVIDENCE = path.join(ROOT, 'evidence');
-const OLD = '4bfb77d487b7f7203ebde275739b58ac4366dd2e';
+const OLD = '84ef928db999b5d8a2b77ad52ceca75ee73e7708';
 const TARGET = 'hp-440e2acae8a6';
 const TRANSLATION = 'Я не работаю по выходным, если могу этого избежать.';
-const BASE = 'http://127.0.0.1:4177/potter-english/';
+let BASE;
 const WIDTHS = [320, 390, 430, 440, 480, 760, 820, 1280];
 const MIME = { '.js': 'text/javascript', '.css': 'text/css', '.html': 'text/html', '.mp3': 'audio/mpeg', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
 const oldFiles = new Map();
@@ -125,19 +125,19 @@ async function enlargeStudy(page) {
 
 (async () => {
   fs.mkdirSync(EVIDENCE, { recursive: true });
-  // Only this Russian translation may change; preserve all English, IDs and audio.
-  const expectedData = oldFile('data.js').toString().replace('Мы опоздаем на поезд? Если это будет зависеть от меня — нет.', TRANSLATION);
-  assert.equal(fs.readFileSync(path.join(DIST, 'data.js'), 'utf8'), expectedData);
-  for (const name of ['styles.css', 'app.js', 'engine.js', 'manifest.webmanifest', 'audio/manifest.json']) {
-    assert.equal(digest(fs.readFileSync(path.join(DIST, name))), digest(oldFile(name)), `${name} unchanged since v1`);
+  const { checkFocus } = require('./focus-checks.cjs');
+  // Focus-only release keeps all content, stable IDs, SRS engine and audio unchanged.
+  for (const name of ['data.js', 'engine.js', 'manifest.webmanifest', 'audio/manifest.json']) {
+    assert.equal(digest(fs.readFileSync(path.join(DIST, name))), digest(oldFile(name)), `${name} unchanged`);
   }
-  assert.match(fs.readFileSync(path.join(DIST, 'sw.js'), 'utf8'), /hp-pocket-shell-v3/);
-  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(4177, '127.0.0.1', resolve); });
+  assert.match(fs.readFileSync(path.join(DIST, 'sw.js'), 'utf8'), /hp-pocket-shell-v4/);
+  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+  BASE = `http://127.0.0.1:${server.address().port}/potter-english/`;
   for (const [name, engine] of Object.entries({ chromium, webkit })) {
-    console.log(`${name}: install 1.0.1 and save progress/chapter4`);
+    console.log(`${name}: install 1.0.2 and save progress/chapter4`);
     release = 'old'; disconnected = false;
     browser = await engine.launch({ headless: true });
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
     await context.addInitScript(() => {
       const Original = window.Audio;
       window.Audio = function (...args) { const audio = new Original(...args); window.__testAudio = audio; return audio; };
@@ -164,7 +164,7 @@ async function enlargeStudy(page) {
     const chapterPaths = new Set(cards.filter(card => card.chapters.includes(4)).flatMap(card => [card.audioPhrase, card.audioExample]));
     assert.equal(before.audio.length, chapterPaths.size, 'chapter audio only');
 
-    console.log(`${name}: activate v3; verify translation, existing data and audio`);
+    console.log(`${name}: activate v4; verify focus, existing data and audio`);
     release = 'new';
     await page.evaluate(async () => {
       const registration = await navigator.serviceWorker.getRegistration();
@@ -189,7 +189,7 @@ async function enlargeStudy(page) {
     await page.locator('[data-view="library"]').click();
     const updatedMeaning = await page.locator('.card-meaning').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize));
     if (updatedMeaning !== 20) console.log('CSS update diagnostic', await page.evaluate(async () => {
-      const stored = await (await caches.open('hp-pocket-shell-v3')).match(new URL('styles.css', location.href));
+      const stored = await (await caches.open('hp-pocket-shell-v4')).match(new URL('styles.css', location.href));
       return { cacheNames: await caches.keys(), storedNewCSS: stored && (await stored.text()).includes('.card-meaning{font-size:20px}'), fetchedNewCSS: (await (await fetch('styles.css')).text()).includes('.card-meaning{font-size:20px}'), sheetLastRules: [...document.styleSheets[0].cssRules].slice(-10).map(rule => rule.cssText) };
     }));
     assert.equal(updatedMeaning, 20, 'UI size retained');
@@ -197,7 +197,7 @@ async function enlargeStudy(page) {
     assert.equal(await page.locator('#detail-content .example-translation').textContent(), TRANSLATION, 'updated Russian translation visible');
     await page.locator('#close-dialog').click();
     assert.deepEqual(await snapshot(page), before, 'upgrade preserves byte-identical progress and all downloaded audio');
-    assert.ok(!(await page.evaluate(() => caches.has('hp-pocket-shell-v2'))), 'obsolete shell removed');
+    assert.ok(!(await page.evaluate(() => caches.has('hp-pocket-shell-v3'))), 'obsolete shell removed');
 
     disconnected = true;
     await page.reload({ waitUntil: 'load' });
@@ -216,9 +216,10 @@ async function enlargeStudy(page) {
     const reopen = await context.newPage();
     await reopen.goto(BASE, { waitUntil: 'load' });
     await reopen.waitForFunction(() => document.querySelectorAll('.expression-card').length > 0);
-    assert.equal(await reopen.locator('.card-meaning').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize)), 20, 'new offline tab uses v3');
+    assert.equal(await reopen.locator('.card-meaning').first().evaluate(el => parseFloat(getComputedStyle(el).fontSize)), 20, 'new offline tab uses v4');
     await reopen.close();
 
+    const focus = await checkFocus(page, {browserName:name,evidenceDir:EVIDENCE});
     const longest = [...new Map(['phrase', 'meaning', 'example'].map(field => {
       const card = cards.reduce((a, b) => a[field].length >= b[field].length ? a : b); return [card.id, card];
     })).values()];
@@ -274,9 +275,9 @@ async function enlargeStudy(page) {
     assert.ok(!/user-scalable\s*=\s*(?:no|0)|maximum-scale\s*=\s*1(?:\D|$)/i.test(viewport), 'browser zoom remains allowed');
     assert.deepEqual(await snapshot(page), before, 'layout/reading checks leave existing state intact');
     assert.deepEqual(errors, [], 'no page errors');
-    report.push({ browser: name, previousRelease: OLD, previousShell: 'hp-pocket-shell-v2', newShell: 'hp-pocket-shell-v3', audioCache: 'hp-pocket-audio-v1', correctedTranslation: TRANSLATION, correctedCardId: TARGET, cards: cards.length, chapter4Audio: before.audio.length, progressByteIdentical: true, audioPathsBytesAndSha256Identical: true, englexCachePreserved: true, physicalServerDisconnect: true, offlineReload: true, offlineNewTab: true, offlinePhraseAndExamplePlayback: true, widths: WIDTHS, meaning20px: true, examples18pxMobile19pxWide: true, longCardIds: longest.map(card => card.id), bottomNavAtViewportEdge: true, safeBottom34pxSimulated: true, navTargetsAtLeast44px: true, finalControlsReachable: true, studyText200Percent: true, browserZoomAllowed: true, hardwareInstallTested: false, pageErrors: errors });
+    report.push({ browser: name, focus, previousRelease: OLD, previousShell: 'hp-pocket-shell-v3', newShell: 'hp-pocket-shell-v4', audioCache: 'hp-pocket-audio-v1', correctedTranslation: TRANSLATION, correctedCardId: TARGET, cards: cards.length, chapter4Audio: before.audio.length, progressByteIdentical: true, audioPathsBytesAndSha256Identical: true, englexCachePreserved: true, physicalServerDisconnect: true, offlineReload: true, offlineNewTab: true, offlinePhraseAndExamplePlayback: true, widths: WIDTHS, meaning20px: true, examples18pxMobile19pxWide: true, longCardIds: longest.map(card => card.id), bottomNavAtViewportEdge: true, safeBottom34pxSimulated: true, navTargetsAtLeast44px: true, finalControlsReachable: true, studyText200Percent: true, browserZoomAllowed: true, hardwareInstallTested: false, pageErrors: errors });
     await browser.close(); browser = null;
-    fs.writeFileSync(path.join(EVIDENCE, 'translation-update-report.json'), JSON.stringify(report, null, 2));
+    fs.writeFileSync(path.join(EVIDENCE, 'focus-update-report.json'), JSON.stringify(report, null, 2));
   }
   console.log(JSON.stringify(report, null, 2));
 })().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {

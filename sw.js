@@ -1,5 +1,5 @@
 /* Bump the shell version whenever app files change in a published release. */
-const SHELL_CACHE = 'hp-pocket-shell-v3';
+const SHELL_CACHE = 'hp-pocket-shell-v4';
 const AUDIO_CACHE = 'hp-pocket-audio-v1';
 const BASE = new URL('./', self.location.href);
 const SHELL_ASSETS = [

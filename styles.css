@@ -26,3 +26,5 @@
 .candidate-note{font-size:12px!important;color:var(--orange);line-height:1.5;margin:0 0 13px}
 /* Keep iOS from zooming the page when a search field or picker gains focus. */
 @media(max-width:760px){.search-box input,select,.chapter-filter select{font-size:16px}}
+/* Keep WebKit dialog focus restoration from outlining the page after touch. */
+#main[data-pointer-focus]:focus{outline:none}
